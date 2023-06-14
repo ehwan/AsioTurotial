@@ -10,13 +10,13 @@ using tcp = asio::ip::tcp;
 
 // 한개의 접속만 허용,
 // 입력한 문자 그대로 return하는 Echo서버
-struct SingleMirrorTcpServer
+struct Server
 {
   asio::io_context io;
   tcp::acceptor acceptor;
   tcp::socket socket;
 
-  SingleMirrorTcpServer()
+  Server()
     : acceptor(io, tcp::endpoint(tcp::v4(), 8888)),
       socket(io)
   {
@@ -63,7 +63,7 @@ struct SingleMirrorTcpServer
 
 // 루프백에 연결해서
 // getline으로 받은거 계속 send, 답신 wait
-struct MessageTcpClient
+struct Client
 {
   asio::io_context io;
   tcp::socket socket;
@@ -107,13 +107,13 @@ int main( int argc, char **argv )
   if( argv[1][0] == 's' )
   {
     // 서버
-    SingleMirrorTcpServer server;
+    Server server;
     server.wait_connection();
     server.run();
   }else
   {
     // 클라이언트
-    MessageTcpClient client;
+    Client client;
     client.connect();
     client.run();
   }
