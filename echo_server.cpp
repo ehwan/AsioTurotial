@@ -9,7 +9,7 @@ using tcp = asio::ip::tcp;
 
 
 // 한개의 접속만 허용,
-// 입력한 문자 그대로 return하는 서버
+// 입력한 문자 그대로 return하는 Echo서버
 struct SingleMirrorTcpServer
 {
   asio::io_context io;
@@ -38,8 +38,14 @@ struct SingleMirrorTcpServer
     std::vector<char> data;
     while( 1 )
     {
+      boost::system::error_code error;
       std::cout << "Wait for data...\n";
-      socket.read_some( asio::buffer(&n,sizeof(n)) );
+      socket.read_some( asio::buffer(&n,sizeof(n)), error );
+      if( error == boost::asio::error::eof )
+      {
+        std::cout << "Connection End\n";
+        break;
+      }
       std::cout << "Received " << n << "bytes : ";
       data.resize(n);
       socket.read_some( asio::buffer(data.data(),n) );
@@ -53,6 +59,7 @@ struct SingleMirrorTcpServer
     }
   }
 };
+
 
 // 루프백에 연결해서
 // getline으로 받은거 계속 send, 답신 wait
@@ -95,15 +102,19 @@ struct MessageTcpClient
   }
 };
 
-int main()
+int main( int argc, char **argv )
 {
-  /*
-  SingleMirrorTcpServer server;
-  server.wait_connection();
-  server.run();
-  */
-
-  MessageTcpClient client;
-  client.connect();
-  client.run();
+  if( argv[1][0] == 's' )
+  {
+    // 서버
+    SingleMirrorTcpServer server;
+    server.wait_connection();
+    server.run();
+  }else
+  {
+    // 클라이언트
+    MessageTcpClient client;
+    client.connect();
+    client.run();
+  }
 }
