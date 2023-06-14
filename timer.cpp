@@ -201,7 +201,7 @@ void multithread_counter3()
   StrandCounter counter1( &count, io, &strand1 );
   StrandCounter counter2( &count, io, &strand2 );
 
-  // strand없이 io.run()을 부르는경우 각기 다른 strand를 사용하는것과 동일
+  // strand없이 async_wait()을 부르는경우 각기 다른 strand를 사용하는것과 동일
   // io.run()을 두개의 쓰레드에서 실행
   // 같은callback이 중복실행될 위험은 없음
   // 다른 strand위에서 callback이 실행되므로 동시실행 위험 O
